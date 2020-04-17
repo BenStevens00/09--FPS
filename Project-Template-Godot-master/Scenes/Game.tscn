@@ -1,10 +1,14 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Scripts/Player.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/shotgun.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Game.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/cliffGrey_top.tscn" type="PackedScene" id=4]
 [ext_resource path="res://tree_pineSmall_square1.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/crate.glb" type="PackedScene" id=6]
+[ext_resource path="res://Assets/key.glb" type="PackedScene" id=7]
+[ext_resource path="res://Scenes/sphere_tank.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scripts/Tank.gd" type="Script" id=9]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 200, 200 )
@@ -17,6 +21,15 @@ radius = 0.5
 
 [sub_resource type="BoxShape" id=4]
 extents = Vector3( 0.4, 0.1, 0.4 )
+
+[sub_resource type="BoxShape" id=5]
+extents = Vector3( 0.25, 0.25, 0.25 )
+
+[sub_resource type="BoxShape" id=6]
+extents = Vector3( 0.08, 0.3, 0.3 )
+
+[sub_resource type="BoxShape" id=7]
+extents = Vector3( 1.8, 1.8, 1.8 )
 
 [node name="Game" type="Spatial"]
 script = ExtResource( 3 )
@@ -57,6 +70,8 @@ transform = Transform( -1, 0, 3.25841e-07, 0, 1, 0, -3.25841e-07, 0, -1, 0.2, 1.
 
 [node name="Bullets" type="Spatial" parent="."]
 
+[node name="EnemyBullets" type="Spatial" parent="."]
+
 [node name="HUD" type="Node2D" parent="."]
 
 [node name="Score" type="Label" parent="HUD"]
@@ -96,3 +111,46 @@ transform = Transform( 30, 0, 0, 0, 30, 0, 0, 0, 30, 60, 0, -100 )
 
 [node name="cliffGrey_top4" parent="Cliffs" instance=ExtResource( 4 )]
 transform = Transform( 30, 0, 0, 0, 30, 0, 0, 0, 30, 90, 0, -100 )
+
+[node name="Items" type="Spatial" parent="."]
+
+[node name="Crate" type="RigidBody" parent="Items"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.10681, 0.469458, 6.27664 )
+
+[node name="crate" parent="Items/Crate" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.007, 0.5 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Items/Crate"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0201777, 0.226174, 0.0115652 )
+shape = SubResource( 5 )
+
+[node name="Key" type="RigidBody" parent="Items"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.469, 5 )
+
+[node name="key" parent="Items/Key" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0.5 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Items/Key"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0 )
+shape = SubResource( 6 )
+
+[node name="Enemies" type="Spatial" parent="."]
+
+[node name="Tank" type="KinematicBody" parent="Enemies"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 2, 0 )
+script = ExtResource( 9 )
+
+[node name="sphere_tank" parent="Enemies/Tank" instance=ExtResource( 8 )]
+
+[node name="CollisionShape" type="CollisionShape" parent="Enemies/Tank"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.348215, 0 )
+shape = SubResource( 7 )
+
+[node name="Scanner" type="RayCast" parent="Enemies/Tank"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0799117, 0 )
+enabled = true
+cast_to = Vector3( 30, 0, 0 )
+
+[node name="Timer" type="Timer" parent="Enemies/Tank"]
+one_shot = true
+[connection signal="timeout" from="Enemies/Tank/Timer" to="Enemies/Tank" method="_on_Timer_timeout"]
